@@ -29,8 +29,6 @@ import android.view.View;
 import android.view.ViewParent;
 import im.ene.lab.toro.media.Cineer;
 import im.ene.lab.toro.media.PlaybackException;
-
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -90,7 +88,7 @@ public final class Toro implements Application.ActivityLifecycleCallbacks {
   final Map<Integer, ToroScrollListener> mListeners = new ConcurrentHashMap<>();
 
   // !IMPORTANT: I limit this Map capacity to 3
-  private List<StateLinkedList> mStates;
+  private StateLinkedList mStates;
 
   // Default strategy
   private ToroStrategy mStrategy = Strategies.MOST_VISIBLE_TOP_DOWN;
@@ -104,10 +102,7 @@ public final class Toro implements Application.ActivityLifecycleCallbacks {
   public static void attach(@NonNull Activity activity) {
     init(activity.getApplication());
     if (sInstance.mStates == null) {
-      sInstance.mStates = new ArrayList<>();
-    }
-    if (sInstance.mStates.size() == 0) {
-      sInstance.mStates.add(new StateLinkedList(3));
+      sInstance.mStates = new StateLinkedList(3);
     }
   }
 
@@ -120,8 +115,6 @@ public final class Toro implements Application.ActivityLifecycleCallbacks {
         sInstance = new Toro();
       }
     }
-
-    sInstance.mStates = new ArrayList<>();
 
     if (application != null) {
       application.registerActivityLifecycleCallbacks(sInstance);
@@ -201,12 +194,11 @@ public final class Toro implements Application.ActivityLifecycleCallbacks {
     sInstance.mListeners.put(view.hashCode(), listener);
 
     final SavedState state;
-    StateLinkedList states = sInstance.mStates.get(sInstance.mStates.size() - 1);
-    if (states.containsKey(view.hashCode())) {
-      state = states.get(view.hashCode());
+    if (sInstance.mStates.containsKey(view.hashCode())) {
+      state = sInstance.mStates.get(view.hashCode());
     } else {
       state = new SavedState();
-      states.put(view.hashCode(), state);
+      sInstance.mStates.put(view.hashCode(), state);
     }
 
     if (state.player != null) {
@@ -239,12 +231,11 @@ public final class Toro implements Application.ActivityLifecycleCallbacks {
         final ToroPlayer player = listener.getManager().getPlayer();
         // 1. Save current state
         final SavedState state;
-        StateLinkedList states = sInstance.mStates.get(sInstance.mStates.size() - 1);
-        if (states.containsKey(view.hashCode())) {
-          state = states.get(view.hashCode());
+        if (sInstance.mStates.containsKey(view.hashCode())) {
+          state = sInstance.mStates.get(view.hashCode());
         } else {
           state = new SavedState();
-          states.put(view.hashCode(), state);
+          sInstance.mStates.put(view.hashCode(), state);
         }
         state.player = player;
         state.position = player.getCurrentPosition();
@@ -290,21 +281,33 @@ public final class Toro implements Application.ActivityLifecycleCallbacks {
   }
 
   @Override public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
-    mStates.add(new StateLinkedList(3));
+    if (mStates == null) {
+      mStates = new StateLinkedList(3);
+    }
   }
 
   @Override public void onActivityStarted(Activity activity) {
+    if (SDK_INT > 23) { // Android N and up
+      dispatchOnActivityActive(activity);
+    }
   }
 
   @Override public void onActivityResumed(Activity activity) {
-    dispatchOnActivityActive(activity);
+    if (SDK_INT <= 23) {
+      dispatchOnActivityActive(activity);
+    }
   }
 
   @Override public void onActivityPaused(Activity activity) {
-    dispatchOnActivityInactive(activity);
+    if (SDK_INT <= 23) {
+      dispatchOnActivityInactive(activity);
+    }
   }
 
   @Override public void onActivityStopped(Activity activity) {
+    if (SDK_INT > 23) { // Android N and up
+      dispatchOnActivityInactive(activity);
+    }
   }
 
   @Override public void onActivitySaveInstanceState(Activity activity, Bundle outState) {
@@ -313,8 +316,7 @@ public final class Toro implements Application.ActivityLifecycleCallbacks {
 
   @Override public void onActivityDestroyed(Activity activity) {
     if (mStates != null) {
-      StateLinkedList states = mStates.get(mStates.size() - 1);
-      for (SavedState state : states.values()) {
+      for (SavedState state : mStates.values()) {
         if (state.player != null) {
           // Release resource if there is any
           state.player.pause();
@@ -324,7 +326,7 @@ public final class Toro implements Application.ActivityLifecycleCallbacks {
         }
       }
 
-      mStates.remove(mStates.size()-1);
+      mStates.clear();
     }
   }
 
@@ -562,11 +564,10 @@ public final class Toro implements Application.ActivityLifecycleCallbacks {
   private void dispatchOnActivityInactive(Activity activity) {
     for (Map.Entry<Integer, ToroScrollListener> entry : mListeners.entrySet()) {
       ToroScrollListener listener = entry.getValue();
-      StateLinkedList states = mStates.get(mStates.size() - 1);
-      SavedState state = states.get(entry.getKey());
+      SavedState state = mStates.get(entry.getKey());
       if (state == null) {
         state = new SavedState();
-        states.put(entry.getKey(), state);
+        mStates.put(entry.getKey(), state);
       }
 
       VideoPlayerManager manager = listener.getManager();
@@ -589,8 +590,7 @@ public final class Toro implements Application.ActivityLifecycleCallbacks {
   private void dispatchOnActivityActive(Activity activity) {
     for (Map.Entry<Integer, ToroScrollListener> entry : mListeners.entrySet()) {
       ToroScrollListener listener = entry.getValue();
-      StateLinkedList states = mStates.get(mStates.size() - 1);
-      SavedState state = states.get(entry.getKey());
+      SavedState state = mStates.get(entry.getKey());
       VideoPlayerManager manager = listener.getManager();
       if (manager.getPlayer() == null) {
         if (state != null && state.player != null) {
