@@ -53,7 +53,7 @@ import java.util.List;
  * Created by eneim on 6/4/16.
  */
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN)  //
-public class ToroVideoView extends TextureView implements Cineer.VideoPlayer {
+public class ToroVideoView extends ResizingTextureView implements Cineer.VideoPlayer {
 
   /**
    * The surface view will not resize itself if the fractional difference
