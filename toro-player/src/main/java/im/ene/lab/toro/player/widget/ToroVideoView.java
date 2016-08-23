@@ -28,7 +28,6 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.util.AttributeSet;
 import android.view.Surface;
-import android.view.TextureView;
 import com.google.android.exoplayer.ExoPlayer;
 import com.google.android.exoplayer.audio.AudioCapabilities;
 import com.google.android.exoplayer.audio.AudioCapabilitiesReceiver;
@@ -54,13 +53,6 @@ import java.util.List;
  */
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN)  //
 public class ToroVideoView extends ResizingTextureView implements Cineer.VideoPlayer {
-
-  /**
-   * The surface view will not resize itself if the fractional difference
-   * between its default aspect ratio and the aspect ratio of the video falls
-   * below this threshold.
-   */
-  private static final float MAX_ASPECT_RATIO_DEFORMATION_PERCENT = 0.01f;
 
   private AudioCapabilitiesReceiver.Listener audioCapabilitiesListener =
       new AudioCapabilitiesReceiver.Listener() {
@@ -124,12 +116,11 @@ public class ToroVideoView extends ResizingTextureView implements Cineer.VideoPl
         float pixelWidthHeightRatio) {
       videoWidth = width;
       videoHeight = height;
-      if (getSurfaceTexture() != null) {
-        setVideoWidthHeightRatio(height == 0 ? 1 : (width * pixelWidthHeightRatio) / height);
-      }
-
       if (onVideoSizeChangedListener != null) {
         onVideoSizeChangedListener.onVideoSizeChanged(mMediaPlayer, width, height);
+      }
+      if (updateVideoSize(width, height)) {
+        requestLayout();
       }
     }
   };
@@ -169,10 +160,6 @@ public class ToroVideoView extends ResizingTextureView implements Cineer.VideoPl
   private ExoMediaPlayer mMediaPlayer;
   private Surface mSurface;
 
-  /**
-   * The ratio of the width and height of the video.
-   */
-  private float mVideoWidthHeightAspectRatio;
   private long mPlayerPosition;
 
   private int videoWidth;
@@ -234,52 +221,6 @@ public class ToroVideoView extends ResizingTextureView implements Cineer.VideoPl
     }
   };
 
-  /**
-   * Resize the view based on the width and height specifications.
-   *
-   * @param widthMeasureSpec The specified width.
-   * @param heightMeasureSpec The specified height.
-   */
-  @Override protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-    super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-    int width = getMeasuredWidth();
-    int height = getMeasuredHeight();
-
-    int widthSpecMode = MeasureSpec.getMode(widthMeasureSpec);
-    int heightSpecMode = MeasureSpec.getMode(heightMeasureSpec);
-
-    if (mVideoWidthHeightAspectRatio != 0) {
-      if (widthSpecMode == MeasureSpec.EXACTLY) {
-        height = (int) (width / mVideoWidthHeightAspectRatio);
-      } else if (heightSpecMode == MeasureSpec.EXACTLY) {
-        width = (int) (height * mVideoWidthHeightAspectRatio);
-      } else {
-        float viewAspectRatio = (float) width / height;
-        float aspectDeformation = mVideoWidthHeightAspectRatio / viewAspectRatio - 1;
-        if (aspectDeformation > MAX_ASPECT_RATIO_DEFORMATION_PERCENT) {
-          width = (int) (height * mVideoWidthHeightAspectRatio);
-        } else if (aspectDeformation < -MAX_ASPECT_RATIO_DEFORMATION_PERCENT) {
-          height = (int) (width / mVideoWidthHeightAspectRatio);
-        }
-      }
-    }
-
-    setMeasuredDimension(width, height);
-  }
-
-  /**
-   * Set the aspect ratio that this {@link ToroVideoView} should satisfy.
-   *
-   * {@code Deprecated}, we gonna support ScaleType
-   *
-   * @param widthHeightRatio The width to height ratio.
-   */
-  @Deprecated public final void setVideoWidthHeightRatio(float widthHeightRatio) {
-    if (this.mVideoWidthHeightAspectRatio != widthHeightRatio) {
-      this.mVideoWidthHeightAspectRatio = widthHeightRatio;
-      requestLayout();
-    }
-  }
 
   public ToroVideoView(Context context) {
     super(context);
