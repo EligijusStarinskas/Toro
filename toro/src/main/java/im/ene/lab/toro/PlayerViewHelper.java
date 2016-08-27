@@ -129,6 +129,7 @@ public abstract class PlayerViewHelper implements OnPlayerStateChangeListener {
     Toro.sInstance.onPlaybackCompletion(this.player, mp);
   }
 
+
   /* END: Callback for MediaPlayer */
 
   /**
@@ -146,6 +147,7 @@ public abstract class PlayerViewHelper implements OnPlayerStateChangeListener {
         this.onCompletion(player);
         break;
       case Cineer.PLAYER_BUFFERING:
+        this.player.onBuffering();
         break;
       case Cineer.PLAYER_IDLE:
         break;

@@ -99,6 +99,10 @@ public abstract class ToroVideoViewHolder extends BasePlayerViewHolder {
 
   }
 
+  @Override public void onBuffering() {
+
+  }
+
   @Override public boolean onPlaybackError(Cineer mp, PlaybackException error) {
     mPlayable = false;
     return super.onPlaybackError(mp, error);

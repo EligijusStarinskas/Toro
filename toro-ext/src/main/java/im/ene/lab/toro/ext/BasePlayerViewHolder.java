@@ -115,6 +115,10 @@ public abstract class BasePlayerViewHolder extends ToroAdapter.ViewHolder
     return false;
   }
 
+  @Override public void onBuffering() {
+
+  }
+
   @Override public void onVideoPreparing() {
 
   }

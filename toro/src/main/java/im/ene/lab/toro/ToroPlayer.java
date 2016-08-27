@@ -181,6 +181,11 @@ public interface ToroPlayer {
   void onPlaybackCompleted();
 
   /**
+   * Callback when this player starts buffering
+   */
+  void onBuffering();
+
+  /**
    * Called from {@link Toro#onPlaybackError(ToroPlayer, Cineer, PlaybackException)}
    *
    * This method has the same signature with {@link OnPlayerStateChangeListener#onPlayerError(Cineer,
@@ -189,4 +194,6 @@ public interface ToroPlayer {
    * loop
    */
   boolean onPlaybackError(Cineer mp, PlaybackException error);
+
+
 }
