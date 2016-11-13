@@ -103,6 +103,8 @@ public interface ToroPlayer extends BaseMediaPlayer {
    */
   void onVideoPrepared();
 
+  void onVideoBuffering();
+
   /**
    * Callback after this player starts playing
    */
@@ -119,4 +121,5 @@ public interface ToroPlayer extends BaseMediaPlayer {
   void onPlaybackCompleted();
 
   boolean onPlaybackError(Exception error);
+
 }

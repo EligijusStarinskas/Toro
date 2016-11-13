@@ -138,6 +138,10 @@ public abstract class ExoVideoViewHolder extends ToroAdapter.ViewHolder implemen
 
   }
 
+  @Override public void onVideoBuffering() {
+
+  }
+
   @Override public void onPlaybackStarted() {
 
   }

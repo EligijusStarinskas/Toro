@@ -97,6 +97,10 @@ public abstract class ExtVideoViewHolder extends ToroAdapter.ViewHolder implemen
     mPlayable = true;
   }
 
+  @Override public void onVideoBuffering() {
+
+  }
+
   @CallSuper @Override public void onActivityActive() {
 
   }
