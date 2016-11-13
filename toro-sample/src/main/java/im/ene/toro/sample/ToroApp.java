@@ -19,24 +19,16 @@ package im.ene.toro.sample;
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
-import com.crashlytics.android.Crashlytics;
-import com.crashlytics.android.ndk.CrashlyticsNdk;
 import im.ene.toro.Toro;
-import io.fabric.sdk.android.Fabric;
 
 /**
  * Created by eneim on 2/1/16.
  */
 public class ToroApp extends Application {
 
+  /* Preference Keys */
+  public static final String PREF_ACCOUNT_NAME = "toro_pref_account_name";
   private static ToroApp sApp;
-
-  @Override public void onCreate() {
-    super.onCreate();
-    Fabric.with(this, new Crashlytics(), new CrashlyticsNdk());
-    Toro.init(this);
-    sApp = this;
-  }
 
   public static SharedPreferences pref() {
     return sApp.getSharedPreferences("toro_pref", Context.MODE_PRIVATE);
@@ -50,6 +42,9 @@ public class ToroApp extends Application {
     return sApp;
   }
 
-  /* Preference Keys */
-  public static final String PREF_ACCOUNT_NAME = "toro_pref_account_name";
+  @Override public void onCreate() {
+    super.onCreate();
+    Toro.init(this);
+    sApp = this;
+  }
 }
