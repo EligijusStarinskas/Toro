@@ -17,6 +17,7 @@
 package im.ene.toro.extended;
 
 import android.content.Context;
+import android.graphics.PointF;
 import android.support.v7.widget.LinearSmoothScroller;
 import android.util.DisplayMetrics;
 
@@ -29,6 +30,10 @@ import android.util.DisplayMetrics;
 
   @Override protected int getVerticalSnapPreference() {
     return SNAP_TO_START;
+  }
+
+  @Override public PointF computeScrollVectorForPosition(int targetPosition) {
+    return null;
   }
 
   @Override protected float calculateSpeedPerPixel(DisplayMetrics displayMetrics) {
