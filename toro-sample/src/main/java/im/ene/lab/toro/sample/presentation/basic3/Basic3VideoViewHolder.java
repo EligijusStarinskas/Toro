@@ -117,6 +117,10 @@ public class Basic3VideoViewHolder extends Basic3BaseVideoViewHolder {
     return this.videoView;
   }
 
+  @Override public void onBuffering() {
+
+  }
+
   @Override public boolean isLoopAble() {
     return true;
   }

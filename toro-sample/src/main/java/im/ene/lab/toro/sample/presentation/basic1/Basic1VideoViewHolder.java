@@ -111,5 +111,8 @@ public class Basic1VideoViewHolder extends Basic1BaseVideoViewHolder {
   @NonNull @Override public View getPlayerView() {
     return this.videoView;
   }
+
+  @Override public void onBuffering() {
+  }
   /* END: ToroPlayer callbacks (partly) */
 }

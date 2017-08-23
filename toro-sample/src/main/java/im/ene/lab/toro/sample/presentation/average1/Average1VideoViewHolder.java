@@ -138,6 +138,10 @@ public class Average1VideoViewHolder extends Average1BaseVideoViewHolder {
     stateView.setText("Completed");
   }
 
+  @Override public void onBuffering() {
+
+  }
+
   @Override public boolean onPlaybackError(Cineer mp, PlaybackException error) {
     stateView.setText(error != null ? "Error: " + error.getLocalizedMessage() : "Error!");
     return super.onPlaybackError(mp, error);
